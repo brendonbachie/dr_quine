@@ -1,0 +1,12 @@
+# Build artifacts
+*.o
+
+# Compiled executables
+Colleen
+Grace
+Sully
+
+# Files generated at runtime by Grace / Sully
+Grace_kid.c
+Grace_kid.s
+Sully_*

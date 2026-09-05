@@ -4,12 +4,27 @@ extern fprintf
 extern fclose
 extern sprintf
 extern system
+extern access
 section .text
 main:
     push rbp
     mov rbp, rsp
     mov r13d, [rel num]
+    lea rdi, [rel probebuf]
+    lea rsi, [rel name]
+    movsx rdx, r13d
+    xor eax, eax
+    call sprintf wrt ..plt
     dec r13d
+    lea rdi, [rel probebuf]
+    mov esi, 4
+    call access wrt ..plt
+    test eax, eax
+    jz .cont
+    inc r13d
+.cont:
+    cmp r13d, 0
+    jl .done
     lea rdi, [rel filename]
     lea rsi, [rel name]
     movsx rdx, r13d
@@ -25,7 +40,8 @@ main:
     mov rcx, 10
     mov r8, 10
     mov r9, 10
-    sub rsp, 8
+    sub rsp, 16
+    push 10
     push 10
     push 10
     push 10
@@ -51,7 +67,7 @@ main:
     push 10
     movsx rax, r13d
     push rax
-    %rep 80
+    %rep 94
         push 10
     %endrep
     xor eax, eax
@@ -68,8 +84,6 @@ main:
     call sprintf wrt ..plt
     lea rdi, [rel command]
     call system wrt ..plt
-    cmp r13d, 0
-    jl .done
     lea rdi, [rel runbuf]
     lea rsi, [rel runfmt]
     movsx rdx, r13d
@@ -86,10 +100,11 @@ num: dd 5
 section .rodata
 name: db "Sully_%d.s", 0
 mode: db "w", 0
-cmd: db "nasm -f elf64 Sully_%d.s -o Sully_%d.o && gcc Sully_%d.o -o Sully_%d", 0
+cmd: db "nasm -f elf64 Sully_%d.s -o k.o && gcc k.o -o Sully_%d && rm -f k.o", 0
 runfmt: db "./Sully_%d", 0
-quine: db "global main%cextern fopen%cextern fprintf%cextern fclose%cextern sprintf%cextern system%csection .text%cmain:%c    push rbp%c    mov rbp, rsp%c    mov r13d, [rel num]%c    dec r13d%c    lea rdi, [rel filename]%c    lea rsi, [rel name]%c    movsx rdx, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel filename]%c    lea rsi, [rel mode]%c    call fopen wrt ..plt%c    mov r12, rax%c    mov rdi, r12%c    lea rsi, [rel quine]%c    mov rdx, 10%c    mov rcx, 10%c    mov r8, 10%c    mov r9, 10%c    sub rsp, 8%c    push 10%c    push 10%c    push 10%c    push 10%c    push 10%c    push 34%c    lea rax, [rel quine]%c    push rax%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 10%c    movsx rax, r13d%c    push rax%c    %%rep 80%c        push 10%c    %%endrep%c    xor eax, eax%c    call fprintf wrt ..plt%c    mov rdi, r12%c    call fclose wrt ..plt%c    lea rdi, [rel command]%c    lea rsi, [rel cmd]%c    movsx rdx, r13d%c    movsx rcx, r13d%c    movsx r8, r13d%c    movsx r9, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel command]%c    call system wrt ..plt%c    cmp r13d, 0%c    jl .done%c    lea rdi, [rel runbuf]%c    lea rsi, [rel runfmt]%c    movsx rdx, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel runbuf]%c    call system wrt ..plt%c.done:%c    xor eax, eax%c    leave%c    ret%csection .data%cnum: dd %d%csection .rodata%cname: db %cSully_%%d.s%c, 0%cmode: db %cw%c, 0%ccmd: db %cnasm -f elf64 Sully_%%d.s -o Sully_%%d.o && gcc Sully_%%d.o -o Sully_%%d%c, 0%crunfmt: db %c./Sully_%%d%c, 0%cquine: db %c%s%c, 0%csection .bss%cfilename: resb 128%ccommand: resb 256%crunbuf: resb 128%c", 0
+quine: db "global main%cextern fopen%cextern fprintf%cextern fclose%cextern sprintf%cextern system%cextern access%csection .text%cmain:%c    push rbp%c    mov rbp, rsp%c    mov r13d, [rel num]%c    lea rdi, [rel probebuf]%c    lea rsi, [rel name]%c    movsx rdx, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    dec r13d%c    lea rdi, [rel probebuf]%c    mov esi, 4%c    call access wrt ..plt%c    test eax, eax%c    jz .cont%c    inc r13d%c.cont:%c    cmp r13d, 0%c    jl .done%c    lea rdi, [rel filename]%c    lea rsi, [rel name]%c    movsx rdx, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel filename]%c    lea rsi, [rel mode]%c    call fopen wrt ..plt%c    mov r12, rax%c    mov rdi, r12%c    lea rsi, [rel quine]%c    mov rdx, 10%c    mov rcx, 10%c    mov r8, 10%c    mov r9, 10%c    sub rsp, 16%c    push 10%c    push 10%c    push 10%c    push 10%c    push 10%c    push 10%c    push 34%c    lea rax, [rel quine]%c    push rax%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 34%c    push 34%c    push 10%c    push 10%c    movsx rax, r13d%c    push rax%c    %%rep 94%c        push 10%c    %%endrep%c    xor eax, eax%c    call fprintf wrt ..plt%c    mov rdi, r12%c    call fclose wrt ..plt%c    lea rdi, [rel command]%c    lea rsi, [rel cmd]%c    movsx rdx, r13d%c    movsx rcx, r13d%c    movsx r8, r13d%c    movsx r9, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel command]%c    call system wrt ..plt%c    lea rdi, [rel runbuf]%c    lea rsi, [rel runfmt]%c    movsx rdx, r13d%c    xor eax, eax%c    call sprintf wrt ..plt%c    lea rdi, [rel runbuf]%c    call system wrt ..plt%c.done:%c    xor eax, eax%c    leave%c    ret%csection .data%cnum: dd %d%csection .rodata%cname: db %cSully_%%d.s%c, 0%cmode: db %cw%c, 0%ccmd: db %cnasm -f elf64 Sully_%%d.s -o k.o && gcc k.o -o Sully_%%d && rm -f k.o%c, 0%crunfmt: db %c./Sully_%%d%c, 0%cquine: db %c%s%c, 0%csection .bss%cfilename: resb 128%ccommand: resb 256%crunbuf: resb 128%cprobebuf: resb 128%c", 0
 section .bss
 filename: resb 128
 command: resb 256
 runbuf: resb 128
+probebuf: resb 128
